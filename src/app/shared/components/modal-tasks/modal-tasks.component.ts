@@ -33,6 +33,7 @@ export class ModalTasksComponent implements OnInit {
 
   ngOnInit(): void {
     const data = this.dynamicDialogConfig.data;
+    console.log('data', data);
     if (data) {
       this.mode = data.mode || 'create';
       if (this.mode === 'edit') {
@@ -51,9 +52,11 @@ export class ModalTasksComponent implements OnInit {
       const formData = {
         ...this.form.value,
         status: this.mode === 'create' ? 'pending' : this.form.value.status,
+        priority: this.mode === 'create' && !this.form.get('priority')?.value ? 'low' : this.form.value.priority,
         uuid: this.mode === 'create' ? this.tooluuidGenerator.generateUUID() : this.form.value.uuid,
       };
       this.dynamicDialogRef.close({
+        mode: this.mode,
         data: formData
       });
     }
@@ -63,8 +66,8 @@ export class ModalTasksComponent implements OnInit {
     this.form = this.formBuilder.group({
       name: ['', Validators.required],
       description: ['', Validators.required],
-      priority: [''],
-      status: [''],
+      priority: [],
+      status: [],
       uuid: [''],
     })
   }

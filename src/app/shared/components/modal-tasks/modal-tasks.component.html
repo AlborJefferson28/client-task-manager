@@ -1,34 +1,44 @@
 <form [formGroup]="form">
     <section class="w-full flex flex-col justify-center items-center">
-        <main class="w-full flex flex-row justify-center gap-4 mt-5">
-            <div class="w-1/2 flex justify-center gap-4 mb-4">
-                <p-floatlabel>
-                    <input id="name" type="text" pInputText formControlName="name" />
+        <main class="w-full flex flex-col justify-center gap-4 mt-5">
+            <div class="w-full flex justify-center gap-4 mb-4">
+                <p-floatlabel class="w-full">
+                    <input id="name" type="text" pInputText formControlName="name" class="w-full" />
                     <label for="name">Nombre</label>
-                </p-floatlabel>
-            </div>
-            <div class="w-1/2 flex justify-center gap-4 mb-4">
-                <p-floatlabel>
-                    <input id="description" type="text" pInputText formControlName="description" />
-                    <label for="description">Descripción</label>
                 </p-floatlabel>
             </div>
         </main>
 
-        <main class="w-full flex flex-row justify-start gap-4 mt-5">
-            <div class="w-1/2 flex justify-start gap-4 mb-4">
-                <p-select [options]="taskPriorities" formControlName="priority" optionLabel="label" optionValue="value"
-                    filterBy="label" placeholder="Seleccionar prioridad" class="w-full" appendTo="body">
-                </p-select>
+        <main class="w-full flex flex-row justify-center gap-4 mt-5">
+            <div class="w-full flex justify-center gap-4 mb-4">
+                <p-floatlabel class="w-full">
+                    <p-select inputId="priority" [options]="taskPriorities" formControlName="priority"
+                        optionLabel="label" optionValue="value" filterBy="label" appendTo="body" styleClass="w-full">
+                    </p-select>
+                    <label for="priority">Prioridad</label>
+                </p-floatlabel>
             </div>
 
-            @if (dynamicDialogConfig.data.mode === 'edit') {
-            <div class="w-1/2 flex justify-start gap-4 mb-4">
-                <p-select [options]="taskStatus" formControlName="status" optionLabel="label" optionValue="value"
-                    filterBy="label" placeholder="Seleccionar estado" class="w-full" appendTo="body">
-                </p-select>
+            <div class="w-full flex justify-center gap-4 mb-4">
+                <p-floatlabel class="w-full">
+                    <p-select inputId="status" [options]="taskStatus" formControlName="status" optionLabel="label"
+                        optionValue="value" filterBy="label" styleClass="w-full" appendTo="body">
+                    </p-select>
+                    <label for="status">Estado</label>
+                </p-floatlabel>
             </div>
-            }
+        </main>
+
+        <p-divider></p-divider>
+
+        <main class="w-full flex flex-row justify-start gap-4 mt-5">
+            <div class="w-full flex justify-center gap-4 mb-4">
+                <p-floatlabel>
+                    <textarea pTextarea id="description" formControlName="description" rows="5" cols="30"
+                        style="resize: none" class="h-full"></textarea>
+                    <label for="description">Descripción</label>
+                </p-floatlabel>
+            </div>
         </main>
     </section>
 

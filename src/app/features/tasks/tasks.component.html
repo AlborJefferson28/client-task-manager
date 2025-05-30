@@ -1,8 +1,8 @@
-<app-toolbar-crud></app-toolbar-crud>
 <app-table
     [dataTable]="taskStore$.taskList()"
     [columns]="columns()"
-    (editItem)="editTask($event)"
+    (newItem)="openModalTask($event)"
+    (editItem)="openModalTask($event)"
     (deleteItem)="removeTask($event)"
 ></app-table>
 <p-confirmdialog />

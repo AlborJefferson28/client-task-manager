@@ -2,6 +2,7 @@ import { patchState, signalStore, withHooks, withMethods, withState } from '@ngr
 import { ITaskList } from './tasks.interface';
 import { inject } from '@angular/core';
 import { LocalstorageService } from '../../core/services/localstorage.service';
+import { MessageService } from 'primeng/api';
 
 type TaskState = {
   taskList: ITaskList[];
@@ -20,13 +21,14 @@ export const TaskStore = signalStore(
     (
       store,
       localStorage = inject(LocalstorageService),
+      messageService = inject(MessageService),
     ) => ({
       getData(): ITaskList[] {
         const data = localStorage.getItem<ITaskList[]>('taskList');
-          patchState(store, {
-            taskList: data ? data : [],
-            isLoadig: false,
-          });
+        patchState(store, {
+          taskList: data ? data : [],
+          isLoadig: false,
+        });
         return store.taskList();
       },
 
@@ -52,6 +54,13 @@ export const TaskStore = signalStore(
           taskList: store.taskList().filter((task) => String(task.uuid) != uuid),
         });
         localStorage.setItem('taskList', store.taskList());
+        messageService.add({
+          key: 'toast',
+          severity: 'success',
+          summary: 'Éxito',
+          detail: 'Registro eliminado',
+          life: 3000
+        });
       },
     })),
   withHooks({
