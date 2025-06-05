@@ -40,6 +40,7 @@ export const TaskStore = signalStore(
           isLoadig: false,
         })
         localStorage.setItem('taskList', store.taskList());
+        this.getFilterTasks();
       },
 
       editTask(updatedTask: ITaskList): void {
@@ -49,6 +50,7 @@ export const TaskStore = signalStore(
           ),
         });
         localStorage.setItem('taskList', store.taskList());
+        this.getFilterTasks();
       },
 
       deleteTask(uuid: string): void {
@@ -62,6 +64,34 @@ export const TaskStore = signalStore(
           summary: 'Éxito',
           detail: 'Registro eliminado',
           life: 3000
+        });
+        this.getFilterTasks();
+      },
+
+      getFilterTasks(): void {
+        const filterParams = localStorage.getFilterParams();
+      
+        if (!filterParams) return;
+      
+        const filtered = store.taskList().filter(task => {
+          return Object.entries(filterParams).every(([key, value]) => {
+            // Ignorar campos vacíos o nulos
+            if (value === null || value === undefined || value === '') return true;
+      
+            const taskValue = String(task[key as keyof ITaskList] ?? '').toLowerCase();
+      
+            // Si el filtro es un array (Multiselect), verificar que el valor del task esté incluido
+            if (Array.isArray(value)) {
+              return value.some((v: string) => taskValue.includes(v.toLowerCase()));
+            }
+      
+            const filterValue = String(value).toLowerCase();
+            return taskValue.includes(filterValue);
+          });
+        });
+      
+        patchState(store, {
+          taskListFiltered: filtered
         });
       },
 
