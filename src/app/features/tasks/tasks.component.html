@@ -1,8 +1,10 @@
-<app-toolbar-crud></app-toolbar-crud>
 <app-table
-    [dataTable]="taskStore$.taskList()"
+    class="w-full block"
+    [dataTable]="taskStore$.taskListFiltered().length > 0 ? taskStore$.taskListFiltered() : taskStore$.taskList()"
     [columns]="columns()"
-    (editItem)="editTask($event)"
+    (newItem)="openModalTask('create', $event)"
+    (editItem)="openModalTask('edit', $event)"
     (deleteItem)="removeTask($event)"
+    (filterTasks)="filterTasks($event)"
 ></app-table>
-<p-confirmdialog />
+<p-confirmdialog /> 

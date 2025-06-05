@@ -50,10 +50,12 @@ export class ModalTasksComponent implements OnInit {
     if (this.form.valid) {
       const formData = {
         ...this.form.value,
-        status: this.mode === 'create' ? 'pending' : this.form.value.status,
+        status: this.mode === 'create' ? this.form.value.status ? this.form.value.status : 'Pendiente' : this.form.value.status,
+        priority: this.mode === 'create' && !this.form.get('priority')?.value ? 'Baja' : this.form.value.priority,
         uuid: this.mode === 'create' ? this.tooluuidGenerator.generateUUID() : this.form.value.uuid,
       };
       this.dynamicDialogRef.close({
+        mode: this.mode,
         data: formData
       });
     }
@@ -62,9 +64,9 @@ export class ModalTasksComponent implements OnInit {
   private buildForm(): void {
     this.form = this.formBuilder.group({
       name: ['', Validators.required],
-      description: ['', Validators.required],
-      priority: [''],
-      status: [''],
+      description: [''],
+      priority: [],
+      status: [],
       uuid: [''],
     })
   }

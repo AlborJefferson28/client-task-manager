@@ -2,14 +2,17 @@ import { patchState, signalStore, withHooks, withMethods, withState } from '@ngr
 import { ITaskList } from './tasks.interface';
 import { inject } from '@angular/core';
 import { LocalstorageService } from '../../core/services/localstorage.service';
+import { MessageService } from 'primeng/api';
 
 type TaskState = {
   taskList: ITaskList[];
+  taskListFiltered: ITaskList[];
   isLoadig: boolean;
 }
 
 const initialState: TaskState = {
   taskList: [],
+  taskListFiltered: [],
   isLoadig: false,
 }
 
@@ -20,13 +23,14 @@ export const TaskStore = signalStore(
     (
       store,
       localStorage = inject(LocalstorageService),
+      messageService = inject(MessageService),
     ) => ({
       getData(): ITaskList[] {
         const data = localStorage.getItem<ITaskList[]>('taskList');
-          patchState(store, {
-            taskList: data ? data : [],
-            isLoadig: false,
-          });
+        patchState(store, {
+          taskList: data ? data : [],
+          isLoadig: false,
+        });
         return store.taskList();
       },
 
@@ -52,7 +56,65 @@ export const TaskStore = signalStore(
           taskList: store.taskList().filter((task) => String(task.uuid) != uuid),
         });
         localStorage.setItem('taskList', store.taskList());
+        messageService.add({
+          key: 'toast',
+          severity: 'success',
+          summary: 'Éxito',
+          detail: 'Registro eliminado',
+          life: 3000
+        });
       },
+
+      filterTasks(params: Partial<Record<keyof ITaskList, string | string[]>>): void {
+        const filtered = store.taskList().filter(task => {
+          return Object.entries(params).every(([key, value]) => {
+            const taskValue = String(task[key as keyof ITaskList] ?? '').toLowerCase();
+      
+            // Si el filtro está vacío, se ignora
+            if (value === null || value === undefined || value === '' || (Array.isArray(value) && value.length === 0)) {
+              return true;
+            }
+      
+            // Si es un array, buscamos si el valor de la tarea está incluido en el filtro
+            if (Array.isArray(value)) {
+              return value.map(v => v.toLowerCase()).includes(taskValue);
+            }
+      
+            // Si es un string simple, comparamos con includes
+            return taskValue.includes(String(value).toLowerCase());
+          });
+        });
+      
+        // Guardamos filtros solo si alguno fue aplicado
+        localStorage.filterParams({
+          name: typeof params.name === 'string' ? params.name : '',
+          priority: Array.isArray(params.priority) ? params.priority : (params.priority ? [params.priority] : []),
+          status: Array.isArray(params.status) ? params.status : (params.status ? [params.status] : []),
+          isLoading: true,
+        });
+      
+        if (filtered.length === 0) {
+          messageService.add({
+            key: 'toast',
+            severity: 'info',
+            summary: 'Sin resultados',
+            detail: 'No se encontraron elementos que coincidan con el filtro aplicado.',
+            life: 3000
+          });
+        }
+      
+        patchState(store, {
+          taskListFiltered: filtered
+        });
+      },      
+
+
+      resetFilterTasks(): void {
+        patchState(store, {
+          taskListFiltered: [],
+        });
+      }
+
     })),
   withHooks({
     onInit: (state) => {

@@ -2,12 +2,15 @@
   [tableStyle]="{ 'min-width': '75rem' }" [rowHover]="true" dataKey="id"
   currentPageReportTemplate="Mostrando {last} de {totalRecords} registros" [showCurrentPageReport]="true">
   <ng-template #caption>
-    <div class="flex items-center justify-end">
-      <p-iconfield>
-        <p-inputicon styleClass="pi pi-search" />
-        <input pInputText type="text" (input)="dt.filterGlobal($event, 'contains')" placeholder="Buscar..."
-          size="small" />
-      </p-iconfield>
+    <div class="flex items-center justify-between">
+      <div>
+        <p-button icon="pi pi-plus" label="Nuevo" (onClick)="onNewItem('create')" />
+      </div>
+
+      <div>
+        <p-button (click)="openModalFilter()" icon="pi pi-filter" label="Filter" 
+        [severity]="severity" variant="outlined" />
+      </div>
     </div>
   </ng-template>
   <ng-template #header>
@@ -30,7 +33,8 @@
       </td>
       }
       <td>
-        <p-button icon="pi pi-pencil" class="mr-2" [rounded]="true" [outlined]="true" (click)="editProduct(product)" />
+        <p-button icon="pi pi-pencil" class="mr-2" [rounded]="true" [outlined]="true"
+          (click)="onEditItem('edit', product)" />
         <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true"
           (click)="deleteProduct(product)" />
       </td>
