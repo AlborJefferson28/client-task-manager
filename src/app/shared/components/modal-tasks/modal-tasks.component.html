@@ -13,7 +13,7 @@
             <div class="w-full flex justify-center gap-4 mb-4">
                 <p-floatlabel class="w-full">
                     <p-select inputId="priority" [options]="taskPriorities" formControlName="priority"
-                        optionLabel="label" optionValue="value" filterBy="label" appendTo="body" styleClass="w-full">
+                        optionLabel="label" optionValue="label" filterBy="label" appendTo="body" styleClass="w-full">
                     </p-select>
                     <label for="priority">Prioridad</label>
                 </p-floatlabel>
@@ -22,7 +22,7 @@
             <div class="w-full flex justify-center gap-4 mb-4">
                 <p-floatlabel class="w-full">
                     <p-select inputId="status" [options]="taskStatus" formControlName="status" optionLabel="label"
-                        optionValue="value" filterBy="label" styleClass="w-full" appendTo="body">
+                        optionValue="label" filterBy="label" styleClass="w-full" appendTo="body">
                     </p-select>
                     <label for="status">Estado</label>
                 </p-floatlabel>

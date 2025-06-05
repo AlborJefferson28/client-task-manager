@@ -7,6 +7,7 @@ import { ConfirmationService } from 'primeng/api';
 import { PrimengModule } from '../../shared/primeng/primeng/primeng.module';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { ModalTasksComponent } from '../../shared/components/modal-tasks/modal-tasks.component';
+import { LocalstorageService } from '../../core/services/localstorage.service';
 
 @Component({
   selector: 'app-tasks',
@@ -23,6 +24,7 @@ export class TasksComponent implements OnInit, OnDestroy {
   private confirmationService = inject(ConfirmationService);
   private ref: DynamicDialogRef | undefined;
   private dialogService = inject(DialogService);
+  private localStorageService = inject(LocalstorageService);
 
   taskStore$ = inject(TaskStore);
 
@@ -31,17 +33,29 @@ export class TasksComponent implements OnInit, OnDestroy {
   constructor() { }
 
   ngOnInit(): void {
+    const filters = this.localStorageService.getFilterParams();
 
+    if (filters?.isLoading) {
+      this.filterTasks({
+        uuid: '',
+        name: filters.name,
+        description: '',
+        priority: filters.priority,
+        status: filters.status
+      });
+    }
   }
 
   ngOnDestroy(): void {
     this.ref?.destroy;
   }
 
-  public openModalTask(task: { mode: 'create' | 'edit' | 'delete', data: ITaskList }): void {
-    console.log('task', task);
+  public openModalTask(
+    mode: 'create' | 'edit',
+    task: { mode: 'create' | 'edit' | 'delete', data: ITaskList }
+  ): void {
     this.ref = this.dialogService.open(ModalTasksComponent, {
-      header: 'Crear Tarea',
+      header: `${ mode === 'create' ? 'Crear' : 'Editar' } tarea`,
       width: '400px',
       contentStyle: { 'max-height': '500px', 'overflow': 'auto' },
       breakpoints: {
@@ -58,7 +72,6 @@ export class TasksComponent implements OnInit, OnDestroy {
     this.ref.onClose
       .subscribe(
         (result: { mode: string, data: ITaskList }) => {
-          console.log('result', result);
           if (result?.data && result.mode === 'create') {
             this.taskStore$.newTask(result.data);
           }
@@ -77,6 +90,10 @@ export class TasksComponent implements OnInit, OnDestroy {
         this.taskStore$.deleteTask(task.uuid);
       }
     });
+  }
+
+  filterTasks(task: ITaskList): void {
+    this.taskStore$.filterTasks(task);
   }
 
 }

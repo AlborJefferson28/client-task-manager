@@ -6,11 +6,13 @@ import { MessageService } from 'primeng/api';
 
 type TaskState = {
   taskList: ITaskList[];
+  taskListFiltered: ITaskList[];
   isLoadig: boolean;
 }
 
 const initialState: TaskState = {
   taskList: [],
+  taskListFiltered: [],
   isLoadig: false,
 }
 
@@ -62,6 +64,57 @@ export const TaskStore = signalStore(
           life: 3000
         });
       },
+
+      filterTasks(params: Partial<Record<keyof ITaskList, string | string[]>>): void {
+        const filtered = store.taskList().filter(task => {
+          return Object.entries(params).every(([key, value]) => {
+            const taskValue = String(task[key as keyof ITaskList] ?? '').toLowerCase();
+      
+            // Si el filtro está vacío, se ignora
+            if (value === null || value === undefined || value === '' || (Array.isArray(value) && value.length === 0)) {
+              return true;
+            }
+      
+            // Si es un array, buscamos si el valor de la tarea está incluido en el filtro
+            if (Array.isArray(value)) {
+              return value.map(v => v.toLowerCase()).includes(taskValue);
+            }
+      
+            // Si es un string simple, comparamos con includes
+            return taskValue.includes(String(value).toLowerCase());
+          });
+        });
+      
+        // Guardamos filtros solo si alguno fue aplicado
+        localStorage.filterParams({
+          name: typeof params.name === 'string' ? params.name : '',
+          priority: Array.isArray(params.priority) ? params.priority : (params.priority ? [params.priority] : []),
+          status: Array.isArray(params.status) ? params.status : (params.status ? [params.status] : []),
+          isLoading: true,
+        });
+      
+        if (filtered.length === 0) {
+          messageService.add({
+            key: 'toast',
+            severity: 'info',
+            summary: 'Sin resultados',
+            detail: 'No se encontraron elementos que coincidan con el filtro aplicado.',
+            life: 3000
+          });
+        }
+      
+        patchState(store, {
+          taskListFiltered: filtered
+        });
+      },      
+
+
+      resetFilterTasks(): void {
+        patchState(store, {
+          taskListFiltered: [],
+        });
+      }
+
     })),
   withHooks({
     onInit: (state) => {
