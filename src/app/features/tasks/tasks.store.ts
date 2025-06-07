@@ -69,27 +69,33 @@ export const TaskStore = signalStore(
       },
 
       getFilterTasks(): void {
-        const filterParams = localStorage.getFilterParams();
-      
+        const rawParams = localStorage.getFilterParams();
+        if (!rawParams) return;
+        const filterParams = Object.fromEntries(
+          Object.entries(rawParams).filter(([key]) => key !== 'isLoading')
+        );
+
         if (!filterParams) return;
-      
+
         const filtered = store.taskList().filter(task => {
           return Object.entries(filterParams).every(([key, value]) => {
-            // Ignorar campos vacíos o nulos
-            if (value === null || value === undefined || value === '') return true;
-      
             const taskValue = String(task[key as keyof ITaskList] ?? '').toLowerCase();
-      
-            // Si el filtro es un array (Multiselect), verificar que el valor del task esté incluido
-            if (Array.isArray(value)) {
-              return value.some((v: string) => taskValue.includes(v.toLowerCase()));
+
+            // Si el filtro está vacío, se ignora
+            if (value === null || value === undefined || value === '' || (Array.isArray(value) && value.length === 0)) {
+              return true;
             }
-      
-            const filterValue = String(value).toLowerCase();
-            return taskValue.includes(filterValue);
+
+            // Si es un array, buscamos si el valor de la tarea está incluido en el filtro
+            if (Array.isArray(value)) {
+              return value.map(v => v.toLowerCase()).includes(taskValue);
+            }
+
+            // Si es un string simple, comparamos con includes
+            return taskValue.includes(String(value).toLowerCase());
           });
         });
-      
+
         patchState(store, {
           taskListFiltered: filtered
         });
