@@ -1,5 +1,5 @@
 <p-table #dt [value]="dataTable" [rows]="5" [columns]="columns" [paginator]="true" [globalFilterFields]="['']"
-  [tableStyle]="{ 'min-width': '75rem' }" [rowHover]="true" dataKey="id"
+  [tableStyle]="{ 'min-width': '75rem' }" [rowHover]="true" dataKey="id" class="overflow-hidden"
   currentPageReportTemplate="Mostrando {last} de {totalRecords} registros" [showCurrentPageReport]="true">
   <ng-template #caption>
     <div class="flex items-center justify-between">
@@ -42,7 +42,7 @@
   </ng-template>
   <ng-template pTemplate="emptymessage">
     <tr>
-      <td [attr.colspan]="columns.length + 1" class="h-32 text-center">
+      <td [attr.colspan]="columns.length + 1" class="w-full h-32 text-center">
         No hay información.
       </td>
       <td></td>
